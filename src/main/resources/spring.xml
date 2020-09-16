@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+
+http://www.springframework.org/schema/tx ">
+    <!-- 配置包扫描 -->
+    <context:component-scan base-package="ee.ssm"/>
+
+    <!-- 读取数据库 读取dp配置文件 -->
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <!-- 使用db里面的内容 数据库连接的配置 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="username" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+        <property name="maxActive" value="${jdbc.maxActive}"></property>
+    </bean>
+
+    <!-- 配置sqlsession工厂 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 注入数据 -->
+        <property name="dataSource" ref="dataSource"/>
+
+        <!-- 读取映射文件 -->
+        <property name="mapperLocations">
+            <array>
+                <value>classpath:ee/ssm/mapper/*Mapper.xml</value>
+            </array>
+        </property>
+
+        <!-- 扫描包位置 -->
+        <property name="typeAliasesPackage" value="ee.ssm.en"/>
+
+        <!-- 读取mybatis -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+
+    </bean>
+
+
+    <!-- 配置mapper -->
+    <bean id="TuserMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <!-- 代理接口 -->
+        <property name="MapperInterface" value="ee.ssm.mapper.TuserMapper"></property>
+
+        <!-- sqlsession工厂注入 -->
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+
+    <bean id="MovieMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <!-- 代理接口 -->
+        <property name="MapperInterface" value="ee.ssm.mapper.MovieMapper"></property>
+
+        <!-- sqlsession工厂注入 -->
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+
+
+    <!-- 配置mybatis事务 有了数据源头 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 注入数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置事务 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!-- 事务操作 -->
+            <tx:method name="get*" read-only="true" propagation="REQUIRED"/>
+            <tx:method name="find*" read-only="true" propagation="REQUIRED"/>
+            <tx:method name="select*" read-only="true" propagation="REQUIRED"/>
+            <tx:method name="query*" read-only="true" propagation="REQUIRED"/>
+            <!-- 设置非只读事务 -->
+            <tx:method name="*" read-only="false"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- 配置AOP切面 -->
+    <aop:config>
+        <!-- 切入点 -->
+        <aop:pointcut expression="execution(* ee.ssm.service.impl.*.*(..))" id="pt"/>
+        <!-- 切面 -->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pt"/>
+    </aop:config>
+
+</beans>

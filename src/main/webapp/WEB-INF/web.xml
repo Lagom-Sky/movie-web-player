@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+        xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+        id="WebApp_ID" version="3.1">
+  <!-- 1、utf-8配置 编码encoding 支持中文字符集的编码  如果数据出现中文，提前设置utf-8来防止中文乱码 -->
+<filter>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <!--        设置字符集-->
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>UTF-8</param-value>
+    </init-param>
+    <!--        强制请求设置字符集-->
+    <init-param>
+        <param-name>forceRequestEncoding</param-name>
+        <param-value>true</param-value>
+    </init-param>
+    <!--        强制响应设置字符集-->
+    <init-param>
+        <param-name>forceResponseEncoding</param-name>
+        <param-value>true</param-value>
+    </init-param>
+</filter>
+<!--    这个filter要在其他过滤器前面-->
+<filter-mapping>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+<!-- 找到对应的框架spring文件 -->
+<servlet>
+  <servlet-name>MVC</servlet-name>
+  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  <init-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring*.xml</param-value>
+  </init-param>
+  <load-on-startup>1</load-on-startup>
+</servlet>
+<!-- 3、地址转换配置  http://localhost:8080/20200817day/index.do -->
+<servlet-mapping>
+  <servlet-name>MVC</servlet-name>
+  <url-pattern>*.do</url-pattern>
+</servlet-mapping>
+</web-app>

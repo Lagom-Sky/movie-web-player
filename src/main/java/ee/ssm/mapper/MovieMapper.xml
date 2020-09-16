@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ee.ssm.mapper.MovieMapper">
+    <select id="selectMovie" resultType="ee.ssm.en.Movie">
+        select * from movie
+    </select>
+     <select id="selectMovieByType" resultType="ee.ssm.en.Movie">
+        select * from movie where type="已上架"
+    </select>
+     <select id="selectMovielikeXXX" parameterType="String" resultType="ee.ssm.en.Movie">
+        select * from movie where name like  #{like}
+     </select>
+     <update id="updateMovieTypeByMid_up" parameterType="int">
+         update movie set type="已上架" where mid=#{mid}
+     </update>
+     <update id="updateMovieTypeByMid_down" parameterType="int">
+         update movie set type="已下架" where mid=#{mid}
+     </update>
+     <update id="update" parameterType="ee.ssm.en.Movie">
+         update movie set type=#{type},name=#{name},director=#{director},actor=#{actor},distrit=#{distrit},date=#{date},pic_url=#{pic_url},m_url=#{m_url} where mid=#{mid}
+      </update>
+      <insert id="insert" parameterType="ee.ssm.en.Movie">
+        insert into movie(name,director,actor,distrit,date,pic_url,m_url,type) values(#{name},#{director},#{actor},#{distrit},#{date},#{pic_url},#{m_url},#{type})
+    </insert>
+</mapper>
